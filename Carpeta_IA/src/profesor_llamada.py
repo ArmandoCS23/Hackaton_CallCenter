@@ -190,9 +190,14 @@ def run_call_simulation():
                 try:
                     engine.say(text)
                     engine.runAndWait()
+                    # Pausa para evitar capturar la propia voz
+                    import time
+                    time.sleep(0.5)
                 except Exception:
                     pass
-            threading.Thread(target=_run, daemon=True).start()
+            t = threading.Thread(target=_run, daemon=True)
+            t.start()
+            t.join()  # Espera a que termine de hablar antes de escuchar
     else:
         # gTTS configuración
         tld = os.getenv("GTTS_TLD", "es")  # 'es' para España, 'com.mx' para México
@@ -216,10 +221,17 @@ def run_call_simulation():
                     mixer.music.load(tmp_path)
                     mixer.music.set_volume(playback_volume)
                     mixer.music.play()
-                    # No bloquea; reproduce en segundo plano
+                    # Espera a que termine de reproducir
+                    while mixer.music.get_busy():
+                        import time
+                        time.sleep(0.1)
+                    # Pausa adicional para evitar capturar eco
+                    time.sleep(0.5)
                 except Exception:
                     pass
-            threading.Thread(target=_run, daemon=True).start()
+            t = threading.Thread(target=_run, daemon=True)
+            t.start()
+            t.join()  # Bloquea hasta que termine de hablar
     
     # Configura reconocimiento de voz
     recognizer = sr.Recognizer()
@@ -228,9 +240,9 @@ def run_call_simulation():
     # Ajustes óptimos para reconocimiento
     recognizer.energy_threshold = 4000  # Umbral de energía para detectar voz (más alto = menos sensible a ruido)
     recognizer.dynamic_energy_threshold = True  # Ajusta automáticamente
-    recognizer.pause_threshold = 1.2  # Segundos de silencio para considerar que terminaste de hablar
+    recognizer.pause_threshold = 0.8  # Segundos de silencio para considerar que terminaste de hablar
     recognizer.phrase_threshold = 0.3  # Mínimo de audio antes de considerar que es habla
-    recognizer.non_speaking_duration = 0.8  # Tiempo de silencio antes de procesar
+    recognizer.non_speaking_duration = 0.5  # Tiempo de silencio antes de procesar
     
     # Ajusta ruido ambiente
     print("[Calibrando micrófono... espera un momento en silencio]")
@@ -246,15 +258,20 @@ def run_call_simulation():
         print("🎤 Escuchando...")
         try:
             with microphone as source:
-                # Espera hasta 8 seg por habla, permite frases de hasta 15 seg
-                audio = recognizer.listen(source, timeout=8, phrase_time_limit=15)
+                # Espera hasta 5 seg por habla, permite frases de hasta 10 seg
+                audio = recognizer.listen(source, timeout=5, phrase_time_limit=10)
             
             print("   Procesando...")
-            text = recognizer.recognize_google(audio, language="es-ES")
+            # Transcripción en tiempo real - sin bloqueo
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(recognizer.recognize_google, audio, language="es-ES")
+                text = future.result(timeout=10)
+            
             print(f"   Alumno: {text}")
             return text.strip()
         except sr.WaitTimeoutError:
-            print("   [⏱️ No escuché nada en 8 segundos]")
+            print("   [⏱️ No escuché nada en 5 segundos]")
             return ""
         except sr.UnknownValueError:
             print("   [❓ No entendí lo que dijiste, repite por favor]")
@@ -327,14 +344,20 @@ def run_call_simulation():
             continue
 
         history.append({"role": "user", "content": user_text})
+        
+        # Muestra indicador de que está pensando
+        print("Profesora García: [pensando...]", end="\r")
+        
         try:
             response = chat(client, history)
         except Exception as e:
             print(f"Profesora García: Hubo un problema al responder (API). {e}")
             continue
 
-        speak(clean_for_speech(response))
+        # Limpia línea de "pensando" y muestra respuesta
+        print(" " * 50, end="\r")  # Limpia la línea
         print(f"Profesora García: {response}")
+        speak(clean_for_speech(response))
         history.append({"role": "assistant", "content": response})
 
 
