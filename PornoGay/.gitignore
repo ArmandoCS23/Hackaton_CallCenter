@@ -1,0 +1,17 @@
+# Entorno virtual
+env/
+venv/
+.env
+
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Logs
+*.log
