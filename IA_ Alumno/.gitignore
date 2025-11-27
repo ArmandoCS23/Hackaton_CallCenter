@@ -15,3 +15,12 @@ __pycache__/
 
 # Logs
 *.log
+
+# Secrets / encrypted keys
+*.gpg
+*.key.gpg
+secrets/*.enc
+credentials/
+
+# Local virtual env (project-specific)
+alumno_virtual_env/

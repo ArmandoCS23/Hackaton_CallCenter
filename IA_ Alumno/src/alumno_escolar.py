@@ -12,7 +12,15 @@ load_dotenv()
 class AlumnoEscolar:
     def __init__(self):
         self.nombre_alumno = "Carlos"
-        self.api_key = os.getenv('GROQ_API_KEY', '***REDACTED***')
+        # Leer la API key de Groq desde la variable de entorno. NO dejar un valor por defecto aquí.
+        self.api_key = os.getenv('GROQ_API_KEY')
+        if not self.api_key:
+            print("⚠️ Aviso: no se encontró la variable de entorno 'GROQ_API_KEY'. Configurela como secreto en GitHub o en su entorno local.")
+
+        # Leer la API key de OpenAI desde la variable de entorno (si se usa OpenAI)
+        self.openai_api_key = os.getenv('OPENAI_API_KEY')
+        if not self.openai_api_key:
+            print("⚠️ Aviso: no se encontró la variable de entorno 'OPENAI_API_KEY'. Si usa OpenAI, añádala como secreto o en su .env local.")
         
         # Inicializar motor de voz
         self.configurar_voz()
