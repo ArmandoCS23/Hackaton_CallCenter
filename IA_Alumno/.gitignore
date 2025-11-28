@@ -1,0 +1,26 @@
+# Entorno virtual
+env/
+venv/
+.env
+
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# Secrets / encrypted keys
+*.gpg
+*.key.gpg
+secrets/*.enc
+credentials/
+
+# Local virtual env (project-specific)
+alumno_virtual_env/
