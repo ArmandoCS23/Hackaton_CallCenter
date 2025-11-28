@@ -1,0 +1,26 @@
+{
+  "álgebra": [
+    "¿Cómo se resuelven sistemas de ecuaciones lineales?",
+    "¿Podría explicar qué son los números complejos?",
+    "¿Cuál es la diferencia entre ecuación e identidad?",
+    "¿Cómo se factorizan polinomios de grado superior?"
+  ],
+  "cálculo": [
+    "¿Qué representa geométricamente una derivada?",
+    "¿Podría explicar el teorema fundamental del cálculo?",
+    "¿Cómo se calculan límites indeterminados?",
+    "¿Qué son las derivadas parciales?"
+  ],
+  "geometría": [
+    "¿Cómo se demuestran teoremas de triángulos?",
+    "¿Podría explicar la geometría analítica?",
+    "¿Qué son los vectores en el espacio?",
+    "¿Cómo se calcula el volumen de sólidos?"
+  ],
+  "estadística": [
+    "¿Cuál es la diferencia entre media y mediana?",
+    "¿Podría explicar la distribución normal?",
+    "¿Cómo se calcula la probabilidad condicional?",
+    "¿Qué son los intervalos de confianza?"
+  ]
+}
