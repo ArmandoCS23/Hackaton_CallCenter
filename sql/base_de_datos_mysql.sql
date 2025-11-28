@@ -29,6 +29,20 @@ CREATE TABLE IF NOT EXISTS sesiones_llamada (
 );
 
 -- ============================================================================
+-- 1.1) TABLA: usuarios (para login y administración)
+-- ============================================================================
+-- Tabla simplificada para prototipo: solo usuario y contraseña
+-- Para pruebas, almacenamos `password` directamente (no recomendado en producción).
+CREATE TABLE IF NOT EXISTS usuarios (
+    usuario_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Ejemplo (comentado) de inserción simple para prototipo
+-- INSERT INTO usuarios (username, password) VALUES ('admin', 'mi_contraseña_de_prueba');
+
+-- ============================================================================
 -- 3) TABLA: turnos_conversacion
 -- ============================================================================
 
