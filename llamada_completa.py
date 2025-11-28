@@ -9,6 +9,7 @@ import time
 import tempfile
 import random
 from dotenv import load_dotenv
+import json
 
 # Importaciones comunes
 import pyttsx3
@@ -24,7 +25,17 @@ try:
     MYSQL_AVAILABLE = True
 except ImportError:
     MYSQL_AVAILABLE = False
-    print("⚠️ mysql-connector-python no está instalado. Usando modo simulación.")
+    print("WARNING: mysql-connector-python no está instalado. Usando modo simulación.")
+
+# En Windows la codificación de la consola puede ser cp1252 y fallar al imprimir emojis.
+# Forzamos stdout/stderr a UTF-8 con 'replace' para evitar UnicodeEncodeError en prints.
+try:
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
 
 from datetime import datetime
 
@@ -33,6 +44,19 @@ import pathlib
 base_dir = pathlib.Path(__file__).parent
 env_path = base_dir / "IA_Maestro" / ".env"
 load_dotenv(dotenv_path=env_path)
+
+# Modo automático: si se pasa --auto en la línea de comandos o la variable de entorno AUTO_START=1,
+# el script saltará prompts interactivos y comenzará la llamada directamente.
+AUTO_START = False
+try:
+    import argparse
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--auto', action='store_true')
+    args, _ = parser.parse_known_args()
+    if args.auto:
+        AUTO_START = True
+except Exception:
+    AUTO_START = os.getenv('AUTO_START', '0') in ('1', 'true', 'True')
 
 # Configuración MySQL
 MYSQL_CONFIG = {
@@ -61,7 +85,7 @@ class DatabaseManager:
         self.modo_simulacion = not MYSQL_AVAILABLE
         
         if self.modo_simulacion:
-            print("🔶 MODO SIMULACIÓN ACTIVADO (mysql-connector no disponible)")
+            print("MODO SIMULACIÓN ACTIVADO (mysql-connector no disponible)")
             self.conversaciones = []
             return
             
@@ -69,25 +93,25 @@ class DatabaseManager:
         if self.connect_mysql():
             self.crear_tabla_si_no_existe()
         else:
-            print("🔶 MODO SIMULACIÓN ACTIVADO (no se pudo conectar a MySQL)")
+            print("MODO SIMULACIÓN ACTIVADO (no se pudo conectar a MySQL)")
             self.conversaciones = []
     
     def connect_mysql(self):
         """Conecta a MySQL"""
         try:
-            print(f"🔧 Conectando a MySQL: {self.mysql_config['host']}:{self.mysql_config['port']}")
+            print(f"Conectando a MySQL: {self.mysql_config['host']}:{self.mysql_config['port']}")
             self.connection = mysql.connector.connect(**self.mysql_config)
             
             if self.connection.is_connected():
                 self.connected = True
                 db_info = self.connection.get_server_info()
-                print(f"✅ Conectado a MySQL Server v{db_info}")
-                print(f"📊 Base de datos: {self.mysql_config['database']}")
+                print(f"Conectado a MySQL Server v{db_info}")
+                print(f"Base de datos: {self.mysql_config['database']}")
                 return True
                 
         except Error as e:
-            print(f"❌ Error conectando a MySQL: {e}")
-            print("\n🔧 SOLUCIÓN DE PROBLEMAS:")
+            print(f"ERROR conectando a MySQL: {e}")
+            print("\nSOLUCIÓN DE PROBLEMAS:")
             print("1. Verifica que MySQL esté ejecutándose en 130.131.4.252:3306")
             print("2. Verifica que el usuario 'hackathon' y contraseña '12345' sean correctos")
             print("3. Verifica que la base de datos 'talkia' exista")
@@ -97,7 +121,7 @@ class DatabaseManager:
     def crear_tabla_si_no_existe(self):
         """Crea la tabla de conversaciones si no existe"""
         if self.modo_simulacion or not self.connected:
-            print("✅ Tabla simulada 'conversaciones' lista")
+            print("Tabla simulada 'conversaciones' lista")
             return
             
         try:
@@ -113,7 +137,7 @@ class DatabaseManager:
             table_exists = cursor.fetchone()[0] > 0
             
             if not table_exists:
-                print("📊 Creando tabla 'conversaciones'...")
+                print("Creando tabla 'conversaciones'...")
                 # Crear tabla de conversaciones
                 create_table_query = """
                 CREATE TABLE conversaciones (
@@ -127,12 +151,12 @@ class DatabaseManager:
                 """
                 cursor.execute(create_table_query)
                 self.connection.commit()
-                print("✅ Tabla 'conversaciones' creada correctamente en MySQL")
+                print("Tabla 'conversaciones' creada correctamente en MySQL")
             else:
-                print("✅ Tabla 'conversaciones' ya existe en MySQL")
+                print("Tabla 'conversaciones' ya existe en MySQL")
             
         except Error as e:
-            print(f"❌ Error creando/verificando tabla: {e}")
+            print(f"ERROR creando/verificando tabla: {e}")
             self.connected = False
     
     def guardar_mensaje(self, personaje, mensaje, turno, duracion_segundos):
@@ -147,7 +171,19 @@ class DatabaseManager:
                 'duracion': duracion_segundos
             }
             self.conversaciones.append(conversacion)
-            print(f"💾 Mensaje guardado (SIMULACIÓN): {personaje} - Turno {turno}")
+            print(f"Mensaje guardado (SIMULACIÓN): {personaje} - Turno {turno}")
+            try:
+                evt = {
+                    'type': 'message',
+                    'personaje': personaje,
+                    'mensaje': mensaje,
+                    'turno': turno,
+                    'duracion_segundos': duracion_segundos,
+                    'timestamp': datetime.now().isoformat()
+                }
+                print("EVENT:" + json.dumps(evt, ensure_ascii=False), flush=True)
+            except Exception:
+                pass
             return True
             
         try:
@@ -158,11 +194,23 @@ class DatabaseManager:
             """
             cursor.execute(insert_query, (personaje, mensaje, turno, duracion_segundos))
             self.connection.commit()
-            print(f"💾 Mensaje guardado en MySQL: {personaje} - Turno {turno}")
+            print(f"Mensaje guardado en MySQL: {personaje} - Turno {turno}")
+            try:
+                evt = {
+                    'type': 'message',
+                    'personaje': personaje,
+                    'mensaje': mensaje,
+                    'turno': turno,
+                    'duracion_segundos': duracion_segundos,
+                    'timestamp': datetime.now().isoformat()
+                }
+                print("EVENT:" + json.dumps(evt, ensure_ascii=False), flush=True)
+            except Exception:
+                pass
             return True
             
         except Error as e:
-            print(f"❌ Error guardando mensaje en MySQL: {e}")
+            print(f"ERROR guardando mensaje en MySQL: {e}")
             # Cambiar a modo simulación
             self.connected = False
             self.modo_simulacion = True
@@ -188,7 +236,7 @@ class DatabaseManager:
             return resultados
             
         except Error as e:
-            print(f"❌ Error obteniendo conversaciones: {e}")
+            print(f"ERROR obteniendo conversaciones: {e}")
             return []
     
     def obtener_estadisticas(self):
@@ -238,7 +286,7 @@ class DatabaseManager:
             }
             
         except Error as e:
-            print(f"❌ Error obteniendo estadísticas: {e}")
+            print(f"ERROR obteniendo estadísticas: {e}")
             return {}
     
     def cerrar_conexion(self):
@@ -246,7 +294,7 @@ class DatabaseManager:
         try:
             if self.connection and self.connected:
                 self.connection.close()
-                print("✅ Conexión a MySQL cerrada")
+                print("Conexión a MySQL cerrada")
             
             # En modo simulación, guardar archivo
             if self.modo_simulacion and self.conversaciones:
@@ -254,12 +302,12 @@ class DatabaseManager:
                     with open('conversaciones_temp.txt', 'w', encoding='utf-8') as f:
                         for conv in self.conversaciones:
                             f.write(f"{conv['timestamp']} | {conv['personaje']} | Turno {conv['turno']}: {conv['mensaje']}\n")
-                    print("💾 Conversaciones guardadas en 'conversaciones_temp.txt'")
+                    print("Conversaciones guardadas en 'conversaciones_temp.txt'")
                 except Exception as e:
-                    print(f"⚠️ Error guardando archivo temporal: {e}")
+                    print(f"WARNING Error guardando archivo temporal: {e}")
                     
         except Exception as e:
-            print(f"⚠️ Error cerrando conexión: {e}")
+                print(f"WARNING Error cerrando conexión: {e}")
 
 # ============================================================================
 # CONFIGURACIÓN GROQ API
@@ -287,17 +335,17 @@ def get_groq_api_key():
                 os.chdir(original_dir)
                 return decrypted
         except Exception as e:
-            print(f"⚠️ Error descifrando GROQ_API_KEY_ENCRYPTED: {e}")
+            print(f"WARNING Error descifrando GROQ_API_KEY_ENCRYPTED: {e}")
     return None
 
 GROQ_API_KEY = get_groq_api_key()
 if not GROQ_API_KEY:
     env_ok, cipher_ok = validar_entorno_maestro()
-    print("❌ Error: Falta GROQ_API_KEY")
+    print("ERROR: Falta GROQ_API_KEY")
     sys.exit(1)
 
-print(f"✅ API Key cargada: ...{GROQ_API_KEY[-8:]}")
-print(f"ℹ️  Usando modelo: llama-3.1-8b-instant\n")
+print(f"API Key cargada: ...{GROQ_API_KEY[-8:]}")
+print("Usando modelo: llama-3.1-8b-instant\n")
 
 # Inicializar el gestor de base de datos MYSQL
 db_manager = DatabaseManager(MYSQL_CONFIG)
@@ -380,7 +428,7 @@ class SistemaVoz:
                 self.engine.setProperty('rate', 170)
                 self.engine.setProperty('volume', 0.9)
             except Exception as e:
-                print(f"⚠️ Error configurando voces: {e}")
+                print(f"WARNING Error configurando voces: {e}")
                 self.voz_fem = None
                 self.voz_masc = None
         else:
@@ -393,13 +441,13 @@ class SistemaVoz:
     
     def calibrar_microfono(self):
         """Calibra el micrófono"""
-        print("🎤 Calibrando micrófono...")
+        print("Calibrando micrófono...")
         try:
             with self.microphone as source:
                 self.recognizer.adjust_for_ambient_noise(source, duration=2)
-            print("✅ Micrófono listo\n")
+            print("Micrófono listo\n")
         except Exception as e:
-            print(f"⚠️ Error calibrando: {e}\n")
+            print(f"WARNING Error calibrando: {e}\n")
     
     def hablar(self, texto, nombre=""):
         """Sintetiza voz con distinción por género"""
@@ -424,13 +472,13 @@ class SistemaVoz:
                 self.engine.runAndWait()
                 time.sleep(0.5)
                 duracion = time.time() - inicio
-                print(f"   ✅ Audio completado ({duracion:.2f}s)")
+                print(f"   Audio completado ({duracion:.2f}s)")
                 return duracion
             except KeyboardInterrupt:
                 self.engine.stop()
                 raise
             except Exception as e:
-                print(f"   ⚠️ Error TTS: {e}")
+                print(f"   WARNING Error TTS: {e}")
                 return time.time() - inicio
         else:
             try:
@@ -477,7 +525,7 @@ class SistemaVoz:
     
     def escuchar(self, quien_escucha=""):
         """Reconoce voz del micrófono"""
-        print(f"\n🎤 {quien_escucha} escuchando...")
+        print(f"\n{quien_escucha} escuchando...")
         
         try:
             with self.microphone as source:
@@ -497,7 +545,7 @@ class SistemaVoz:
             print("   ❓ No se entendió, intente de nuevo\n")
             return ""
         except Exception as e:
-            print(f"   ❌ Error: {e}\n")
+            print(f"   ERROR: {e}\n")
             return ""
 
 # ============================================================================
@@ -533,24 +581,24 @@ def llamar_groq(prompt_sistema, historial, temperatura=0.5, max_reintentos=3):
             if response.status_code == 200:
                 result = response.json()
                 contenido = result['choices'][0]['message']['content'].strip()
-                print(f"   ✅ Respuesta recibida ({len(contenido)} chars)")
+                print(f"   Respuesta recibida ({len(contenido)} chars)")
                 return contenido
             elif response.status_code == 429:
                 wait_time = 2 ** intento
-                print(f"⚠️ Rate limit (429). Esperando {wait_time}s...")
+                print(f"Rate limit (429). Esperando {wait_time}s...")
                 time.sleep(wait_time)
                 continue
             else:
-                print(f"❌ Error Groq HTTP {response.status_code}: {response.text[:200]}")
+                print(f"ERROR Groq HTTP {response.status_code}: {response.text[:200]}")
                 return None
         except requests.exceptions.Timeout:
-            print(f"❌ Timeout: Groq API no respondió en 10 segundos")
+            print("ERROR Timeout: Groq API no respondió en 10 segundos")
             return None
         except requests.exceptions.ConnectionError as e:
-            print(f"❌ Error de conexión: {e}")
+            print(f"ERROR de conexión: {e}")
             return None
         except KeyboardInterrupt:
-            print(f"\n⚠️ Llamada a API cancelada")
+            print("\nLlamada a API cancelada")
             raise
         except Exception as e:
             print(f"❌ Error API inesperado: {type(e).__name__}: {e}")
@@ -627,12 +675,15 @@ def iniciar_llamada_completa():
     mostrar_historial_conversaciones()
     mostrar_estadisticas()
     
-    try:
-        input("\n▶️ Presiona Enter para iniciar la llamada (Ctrl+C para cancelar)...")
-    except KeyboardInterrupt:
-        print("\n⏹️ Llamada cancelada antes de iniciar")
-        db_manager.cerrar_conexion()
-        return
+    if not AUTO_START:
+        try:
+            input("\nPresiona Enter para iniciar la llamada (Ctrl+C para cancelar)...")
+        except KeyboardInterrupt:
+            print("\nLlamada cancelada antes de iniciar")
+            db_manager.cerrar_conexion()
+            return
+    else:
+        print("Auto-start activado, iniciando llamada...")
     
     voz = SistemaVoz(use_fast=False)
     historial_profesora = []

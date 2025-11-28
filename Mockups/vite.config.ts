@@ -59,5 +59,9 @@
     server: {
       port: 3000,
       open: true,
+      proxy: {
+        // Proxyea llamadas `/api/*` a la API Python en el puerto 5001
+        '/api': 'http://localhost:5001'
+      }
     },
   });
