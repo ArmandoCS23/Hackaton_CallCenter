@@ -1,0 +1,99 @@
+# ============================================================================
+# GITIGNORE - Hackaton_CallCenter
+# ============================================================================
+
+# Entornos virtuales de Python
+.venv/
+venv/
+env/
+ENV/
+*/venv/
+*/.venv/
+
+# Variables de entorno y secretos
+# COMENTADO: Se permite subir .env y .cipher_key para este proyecto
+# .env
+# *.env
+# .cipher_key
+# *.cipher_key
+
+# Archivos de Python compilados
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Archivos temporales de audio
+*.mp3
+*.wav
+*.ogg
+*.flac
+tmp/
+temp/
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Pytest
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.cache
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Bases de datos locales (si las hay)
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos de respaldo
+*.bak
+*.backup
+*~
+
+# Archivos específicos de Windows
+$RECYCLE.BIN/

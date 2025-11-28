@@ -1,0 +1,16 @@
+{
+  "alumno": {
+    "nombre": "Carlos",
+    "materia": "Matemáticas",
+    "nivel": "universitario"
+  },
+  "voz": {
+    "velocidad": 160,
+    "volumen": 0.9,
+    "idioma": "es-ES"
+  },
+  "audio": {
+    "tiempo_escucha": 15,
+    "timeout_escucha": 10
+  }
+}
