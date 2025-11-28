@@ -1,141 +1,172 @@
-# Hackaton_CallCenter
+# 📞 **Hackaton CallCenter – Aplicación Web con IA**
 
-## 📞 Hackathon CallCenter – Documentación del Proyecto
-## 📘 Descripción General
+## 📝 **Descripción General del Proyecto**
+Este proyecto es una solución completa desarrollada para la **Hackatón CallCenter**, donde se creó una **aplicación web funcional** que integra **Inteligencia Artificial** para asistir en la gestión de llamadas, resolver consultas, apoyar a los agentes y automatizar procesos.
 
-Este proyecto integra múltiples módulos de inteligencia artificial diseñados para simular la interacción entre un Alumno y un Maestro mediante llamadas o mensajes.
-Ambas IAs pueden ejecutarse en computadoras distintas y comunicarse entre sí usando servidores HTTP, modelos de voz y cifrado.
+El proyecto combina:
+- Frontend web completo con componentes reutilizables.
+- Backend en Python para la lógica e integración.
+- Modelos de IA (GPT) para generación de respuestas y análisis.
+- Bases de datos y datasets para entrenamiento y pruebas.
 
-## El sistema también incluye:
+---
 
-Procesamiento de voz a texto y texto a voz.
+# 🤖 **Justificación del Uso de Inteligencia Artificial**
+La IA apoyó en distintas fases del desarrollo del sistema:
 
-Comunicación bidireccional entre IAs.
+## 🔹 **1. Creación y Diseño de Interfaces Web**
+**Prompts utilizados:**
+- "Genera un panel de gestión de un Call Center con un diseño moderno"
+- "Crea un formulario responsivo para registrar llamadas"
 
-Scripts SQL para la base de datos.
+**Resultados generados:**
+- Estructuras HTML optimizadas
+- CSS y estilos responsivos
+- Mejoras visuales y de usabilidad
 
-Interfaz web con HTML.
+---
 
-## Versiones separadas y fusionadas de la IA del alumno y maestro.
+## 🔹 **2. Corrección y Optimización de Código**
+**Prompts utilizados:**
+- "Corrige este error en JavaScript"
+- "Optimiza este código Python y explícame la razón"
 
-## 📁 Estructura del Proyecto
+**Resultados generados:**
+- Código corregido y funcionando
+- Funciones más limpias y legibles
+- Mejor estructura modular
+
+---
+
+## 🔹 **3. Documentación y Estructura del Proyecto**
+**Prompts utilizados:**
+- "Genera un README profesional para mi repositorio"
+
+**Resultados generados:**
+- Estructura completa del README
+- Información clara y presentable
+
+---
+
+# 📂 **Estructura Completa del Proyecto**
+A continuación se presenta la estructura fusionada del proyecto final:
+
+```
 Hackaton_CallCenter/
-│── main.py
-│── requirements.txt
-│── runtime.txt
-│── templates/               # Interfaz HTML
-│── sql/                     # Scripts de base de datos
-│── Carpeta_IA/              # IA del Maestro
-│── IA_Alumno/               # IA del Alumno
-│── IA_fucionada/            # Versión combinada (Alumno + Maestro)
+│
+├── public/
+│   ├── components/
+│   ├── css/
+│   ├── img/
+│   ├── js/
+│   └── video/
+│
+├── datasets/
+│   ├── base_de_datos_mongo.json
+│   ├── base_de_datos_students.xlsx
+│   └── student_questions_base.xlsx
+│
+├── IA_fucionada/
+│   ├── IA_Maestro/
+│   │   ├── models/
+│   │   ├── src/
+│   │   │   ├── gpt_model.py
+│   │   │   ├── llm.py
+│   │   │   └── server.py
+│   └── llamada_completa.py
+│
+├── sql/
+│   ├── base_de_datos_mysql.sql
+│   └── create_student_questions.sql
+│
+├── templates/
+│   ├── index.html
+│   ├── page_2.html
+│   ├── page_3.html
+│   ├── page_4.html
+│   └── page_5.html
+│
+├── main.py
+├── requirements.txt
+└── README.md
+```
 
-## 📂 Carpetas Principales
-Carpeta_IA/
+---
 
-Contiene la lógica del Maestro, incluyendo:
+# 🛠️ **Tecnologías Utilizadas**
+### **Frontend**
+- HTML5
+- CSS3 / TailwindCSS
+- JavaScript
 
-server.py – Servidor HTTP que recibe y envía mensajes.
+### **Backend**
+- Python
+- FastAPI / Flask (dependiendo de la versión del proyecto)
 
-profesor_llamada.py – Lógica de la IA del maestro.
+### **Inteligencia Artificial**
+- Modelos GPT para análisis de texto y respuestas
+- Scripts internos de NLP
 
-crypto_helper.py – Cifrado y descifrado de mensajes.
+### **Bases de Datos**
+- MySQL
+- MongoDB
 
-IA_Alumno/
+---
 
-Contiene la lógica del Alumno, con estructura similar:
+# 📥 **Cómo Clonar el Repositorio**
+Ejecuta en tu terminal:
+```bash
+git clone https://github.com/tu_usuario/Hackaton_CallCenter.git
+```
 
-run.py
+Ingresa al proyecto:
+```bash
+cd Hackaton_CallCenter
+```
 
-Modelos de respuesta del alumno.
+---
 
-Comunicación con el servidor del maestro.
+# ⚙️ **Instalación y Ejecución del Proyecto**
+### 🔧 **1. Instalar dependencias**
+Asegúrate de tener Python 3.10+ instalado.
 
-IA_fucionada/
-
-Implementa una versión donde Alumno y Maestro están integrados en una sola estructura más ordenada.
-
-## ⚙️ Instalación y Configuración
-## 1️⃣ Crear entorno virtual (opcional pero recomendado)
-python -m venv venv
-source venv/bin/activate   # Linux/Mac
-venv\Scripts\activate      # Windows
- 
-## 2️⃣ Instalar dependencias
+```bash
 pip install -r requirements.txt
+```
 
-## 3️⃣ Configurar variables de entorno
+### ▶️ **2. Ejecutar el servidor principal**
+```bash
+python main.py
+```
 
-En cada carpeta de IA se incluye un archivo .env.example.
-Cópialo y renómbralo a .env:
-cp .env.example .env
-Completa tus claves y URLs necesarias.
+### 🌐 **3. Abrir la aplicación en el navegador**
+Dirígete a:
+```
+http://localhost:8000
+```
+(o el puerto configurado en tu servidor)
 
-## 4️⃣ Ejecutar el proyecto
+---
 
-Desde la raíz:
+# 🧪 **Pruebas del Sistema**
+Si agregaste pruebas, ejecútalas con:
+```bash
+pytest
+```
 
-python main.py O desde cada IA:
-python server.py O python run.py
+---
 
-## 🔄 Comunicación entre IAs (Alumno ↔ Maestro)
+# 📸 **Capturas de Pantalla** (Opcional)
+_Añade aquí imágenes del dashboard, formularios o funciones importantes._
 
-Las inteligencias artificiales se conectan entre sí mediante:
+---
 
-Endpoints HTTP definidos en server.py.
+# 📄 **Licencia**
+Este proyecto se distribuye bajo los términos definidos por los autores de la hackatón.
 
-Envío de mensajes de texto o audio.
+---
 
-Cifrado usando crypto_helper.py.
-
-Procesamiento de voz para generar interacción más natural.
-
-Cada IA puede correr en computadoras diferentes.
-Solo debes configurar la IP o URL del servidor opuesto.
-
-## 🗄️ Base de Datos
-
-En la carpeta sql/ encontrarás scripts como:
-base_de_datos_mysql.sql
-create_student_questions.sql
-Estos scripts permiten crear tablas para:
-Registro de preguntas.
-Historial de interacción.
-Logs del entrenamiento y respuestas.
-
-## 🖥️ Interfaz Web
-
-En la carpeta templates/ encontrarás páginas HTML donde el usuario puede interactuar:
-index.html
-page_2.html
-page_3.html
-page_4.html
-page_5.html
-Estas sirven para pruebas de interfaz o dashboards simples.
-
-## 🎯 Objetivo del Proyecto
-
-Crear un sistema funcional donde:
-
-El Alumno pueda hablar o escribir.
-
-El Maestro responda de forma guiada.
-
-Ambas IAs colaboren para simular llamadas reales.
-
-El sistema pueda escalar para call centers, escuelas o simuladores.
-
-## 🧰 Tecnologías Utilizadas
-
-Python 3
-
-FastAPI / Flask (dependiendo del módulo)
-
-OpenAI / IA conversacional
-
-MySQL
-
-HTML + JS
-
-Librerías de grabación y reproducción de audio
-
-Criptografía para comunicación segura
+# 👤 **Autor(es)**
+- Nombre del desarrollador
+- Contacto
+- GitHub del proyecto
