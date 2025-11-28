@@ -164,9 +164,6 @@ _Añade aquí imágenes del dashboard, formularios o funciones importantes._
 # 📄 **Licencia**
 Este proyecto se distribuye bajo los términos definidos por los autores de la hackatón.
 
----
 
-# 👤 **Autor(es)**
-- Nombre del desarrollador
-- Contacto
-- GitHub del proyecto
+
+
